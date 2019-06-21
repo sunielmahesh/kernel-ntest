@@ -181,6 +181,7 @@ struct vop_plane_state {
 	int blend_mode;
 	unsigned long offset;
 	int pdaf_data_type;
+	unsigned int colorkey;
 };
 
 struct rockchip_mcu_timing {
@@ -209,6 +210,7 @@ struct vop_win {
 	struct vop *vop;
 
 	struct drm_property *rotation_prop;
+	struct drm_property *colorkey_prop;
 	struct vop_plane_state state;
 };
 
@@ -1696,6 +1698,7 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 	int ymirror, xmirror;
 	uint32_t val;
 	bool rb_swap, global_alpha_en;
+	int colorkey;
 
 #if defined(CONFIG_ROCKCHIP_DRM_DEBUG)
 	bool AFBC_flag = false;
@@ -1839,6 +1842,14 @@ static void vop_plane_atomic_update(struct drm_plane *plane,
 		VOP_WIN_SET_EXT(vop, win, csc, r2y_en, vop_plane_state->r2y_en);
 		VOP_WIN_SET_EXT(vop, win, csc, csc_mode, vop_plane_state->csc_mode);
 	}
+
+	colorkey = vop_plane_state->colorkey;
+	colorkey = ((colorkey & 0xFF0000) << 6) |
+		((colorkey & 0xFF00) << 4) |
+		((colorkey & 0xFF) << 2);
+	VOP_WIN_SET(vop, win, key_color, colorkey);
+	VOP_WIN_SET(vop, win, key_en, !!(colorkey & (1UL << 31)));
+
 	VOP_WIN_SET(vop, win, enable, 1);
 	VOP_WIN_SET(vop, win, gate, 1);
 	spin_unlock(&vop->reg_lock);
@@ -1984,6 +1995,11 @@ static int vop_atomic_plane_set_property(struct drm_plane *plane,
 		return 0;
 	}
 
+	if (property == win->colorkey_prop) {
+		plane_state->colorkey = val;
+		return 0;
+	}
+
 	DRM_ERROR("failed to set vop plane property\n");
 	return -EINVAL;
 }
@@ -2029,6 +2045,11 @@ static int vop_atomic_plane_get_property(struct drm_plane *plane,
 
 	if (property == private->pdaf_data_type) {
 		*val = plane_state->pdaf_data_type;
+		return 0;
+	}
+
+	if (property == win->colorkey_prop) {
+		*val = plane_state->colorkey;
 		return 0;
 	}
 
@@ -4125,6 +4146,17 @@ static int vop_plane_init(struct vop *vop, struct vop_win *win,
 	if (VOP_WIN_SUPPORT(vop, win, data_type))
 		drm_object_attach_property(&win->base.base,
 					   private->pdaf_data_type, 0x2a);
+
+	if (VOP_WIN_SUPPORT(vop, win, key_color)) {
+		prop = drm_property_create_signed_range(vop->drm_dev, 0,
+							"colorkey",
+							-1, 0xffffffff);
+		if (!prop)
+			return -ENOMEM;
+		win->colorkey_prop = prop;
+		drm_object_attach_property(&win->base.base,
+					   win->colorkey_prop, -1);
+	}
 
 	return 0;
 }
