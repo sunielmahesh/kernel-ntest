@@ -80,6 +80,15 @@
 		#clock-cells = <0>;
 	};
 
+	io-domains {
+		compatible = "rockchip,rk3288-io-voltage-domain";
+		rockchip,grf = <&grf>;
+		flash0-supply = <&vcc_flash>;
+		gpio30-supply = <&vcc_io>;
+		wifi-supply = <&vcc_18>;
+		sdcard-supply = <&vccio_sd>;
+	};
+
 	sdio_pwrseq: sdio-pwrseq {
 		compatible = "mmc-pwrseq-simple";
 		clocks = <&rk808 RK808_CLKOUT1>;
@@ -148,6 +157,14 @@
 		};
 	};
 
+	vdd_3v3_reg: fixedregulator_3v3 {
+		compatible = "regulator-fixed";
+		regulator-name = "3v3";
+		regulator-min-microvolt = <3300000>;
+		regulator-max-microvolt = <3300000>;
+		regulator-always-on;
+	};
+
 	vcc_sys: vsys-regulator {
 		compatible = "regulator-fixed";
 		regulator-name = "vcc_sys";
@@ -172,6 +189,27 @@
 		regulator-max-microvolt = <3300000>;
 		startup-delay-us = <100000>;
 		vin-supply = <&vcc_io>;
+	};
+
+	vcc_flash: flash-regulator {
+		compatible = "regulator-fixed";
+		regulator-name = "vcc_flash";
+		regulator-min-microvolt = <1800000>;
+		regulator-max-microvolt = <1800000>;
+		vin-supply = <&vcc_io>;
+	};
+
+	vdd_log: vdd_log {
+		compatible = "regulator-fixed";
+		regulator-min-microvolt = <1000000>;
+		regulator-max-microvolt = <1000000>;
+		regulator-name = "vdd_logic";
+	};
+
+	rk3288_gpiomem: rk3288-gpiomem {
+		compatible = "rockchip,rk3288-gpiomem";
+		reg = <0x0 0xff750000 0x0 0x1000>;
+		status = "okay";
 	};
 
 	vcc_cam: vcc-camera {
@@ -218,6 +256,11 @@
 	tx_delay = <0x30>;
 	rx_delay = <0x10>;
 	status = "ok";
+};
+
+&gpu {
+	mali-supply = <&vdd_gpu>;
+	status = "okay";
 };
 
 &gpu {
