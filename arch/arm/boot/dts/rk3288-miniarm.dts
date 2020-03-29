@@ -144,17 +144,22 @@
 		};
 	};
 
-	sound {
+	sound-simple-card {
 		compatible = "simple-audio-card";
 		simple-audio-card,format = "i2s";
 		simple-audio-card,name = "rockchip,miniarm-codec";
 		simple-audio-card,mclk-fs = <512>;
+		simple-audio-card,hp-det-gpio = <&gpio7 4 GPIO_ACTIVE_LOW>;
 		simple-audio-card,cpu {
 			sound-dai = <&i2s>;
 		};
 		simple-audio-card,codec {
 			sound-dai = <&hdmi>;
 		};
+	};
+
+	sound-ext-card {
+		status = "disabled";
 	};
 
 	vdd_3v3_reg: fixedregulator_3v3 {
@@ -642,6 +647,7 @@
 	supports-sd;
 	vmmc-supply = <&vcc33_sd>;
 	vqmmc-supply = <&vccio_sd>;
+	sd-uhs-sdr104;
 };
 
 &tsadc {
@@ -707,6 +713,14 @@
 };
 
 &vpu_service {
+	status = "okay";
+};
+
+&vpu {
+	status = "okay";
+};
+
+&vpu_mmu {
 	status = "okay";
 };
 
