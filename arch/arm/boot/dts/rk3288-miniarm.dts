@@ -542,6 +542,11 @@
 
 &i2c4 {
 	status = "okay";
+
+	rtc: ds1307@68 {
+		compatible = "dallas,ds1307";
+		reg = <0x68>;
+	};
 };
 
 &isp {
