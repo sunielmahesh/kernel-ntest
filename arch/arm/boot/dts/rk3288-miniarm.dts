@@ -733,14 +733,6 @@
 	status = "okay";
 };
 
-&vpu {
-	status = "okay";
-};
-
-&vpu_mmu {
-	status = "okay";
-};
-
 &wdt {
 	status = "okay";
 };
