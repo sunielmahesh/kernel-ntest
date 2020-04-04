@@ -49,7 +49,7 @@
 		>;
 		auto-min-freq = <396000>;
 		auto-freq-en = <0>;
-		status = "diasbled";
+		status = "disabled";
 	};
 
 	dmc_opp_table: opp_table2 {
