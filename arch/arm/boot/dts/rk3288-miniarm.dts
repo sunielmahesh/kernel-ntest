@@ -491,14 +491,6 @@
 
 &i2c1 {
 	status = "okay";
-
-	compatible = "nxp,pn547";
-
-	reg = <0x28>;
-	clock-frequency = <400000>;
-
-	interrupt-gpios = <&gpio5 13 GPIO_ACTIVE_HIGH>;
-	enable-gpios = <&gpio7 7 GPIO_ACTIVE_HIGH>;
 };
 
 &i2c2 {
