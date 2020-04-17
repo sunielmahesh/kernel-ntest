@@ -65,7 +65,9 @@ enum {
 struct rfkill_rk_data {
 	struct rfkill_rk_platform_data	*pdata;
     struct platform_device      *pdev;
+#if 0
 	struct rfkill				*rfkill_dev;
+#endif
     struct wake_lock            bt_irq_wl;
     struct delayed_work         bt_sleep_delay_work;
     int irq_req;
@@ -256,6 +258,7 @@ void rfkill_rk_sleep_bt(bool sleep)
 }
 EXPORT_SYMBOL(rfkill_rk_sleep_bt);
 
+#if 0
 static int bt_power_state = 0;
 int rfkill_get_bt_power_state(int *power, bool *toggle)
 {
@@ -363,6 +366,7 @@ static int rfkill_rk_set_power(void *data, bool blocked)
 
 	return 0;
 }
+#endif
 
 static int rfkill_rk_pm_prepare(struct device *dev)
 {
@@ -399,8 +403,10 @@ static int rfkill_rk_pm_prepare(struct device *dev)
     }
 
 #ifdef CONFIG_RFKILL_RESET
+#if 0
     rfkill_set_states(rfkill->rfkill_dev, BT_BLOCKED, false);
     rfkill_rk_set_power(rfkill, BT_BLOCKED);
+#endif
 #endif
 
     return 0;
@@ -435,9 +441,11 @@ static void rfkill_rk_pm_complete(struct device *dev)
     }
 }
 
+#if 0
 static const struct rfkill_ops rfkill_rk_ops = {
     .set_block = rfkill_rk_set_power,
 };
+#endif
 
 #define PROC_DIR	"bluetooth/sleep"
 
@@ -654,6 +662,7 @@ static int rfkill_rk_probe(struct platform_device *pdev)
     ret = rfkill_rk_setup_wake_irq(rfkill, 0);
     if (ret) goto fail_setup_wake_irq;
 
+#if 0
     DBG("setup rfkill\n");
 	rfkill->rfkill_dev = rfkill_alloc(pdata->name, &pdev->dev, pdata->type,
 				&rfkill_rk_ops, rfkill);
@@ -664,18 +673,19 @@ static int rfkill_rk_probe(struct platform_device *pdev)
 	ret = rfkill_register(rfkill->rfkill_dev);
 	if (ret < 0)
 		goto fail_rfkill;
+#endif
 
     INIT_DELAYED_WORK(&rfkill->bt_sleep_delay_work, rfkill_rk_delay_sleep_bt);
 
     //rfkill_rk_set_power(rfkill, BT_BLOCKED);
-    // bt turn off power
+    // bt turn on power
     if (gpio_is_valid(pdata->poweron_gpio.io))
     {
-        gpio_direction_output(pdata->poweron_gpio.io, !pdata->poweron_gpio.enable);
+        gpio_direction_output(pdata->poweron_gpio.io, pdata->poweron_gpio.enable);
     }
     if (gpio_is_valid(pdata->reset_gpio.io))
     {
-        gpio_direction_output(pdata->reset_gpio.io, !pdata->reset_gpio.enable);
+        gpio_direction_output(pdata->reset_gpio.io, pdata->reset_gpio.enable);
     }
 
 	platform_set_drvdata(pdev, rfkill);
@@ -684,8 +694,10 @@ static int rfkill_rk_probe(struct platform_device *pdev)
 
 	return 0;
 
+#if 0
 fail_rfkill:
 	rfkill_destroy(rfkill->rfkill_dev);
+#endif
 fail_alloc:
 
 	remove_proc_entry("btwrite", sleep_dir);
@@ -704,9 +716,10 @@ static int rfkill_rk_remove(struct platform_device *pdev)
 
     LOG("Enter %s\n", __func__);
 
+#if 0
 	rfkill_unregister(rfkill->rfkill_dev);
 	rfkill_destroy(rfkill->rfkill_dev);
-
+#endif
     
     cancel_delayed_work_sync(&rfkill->bt_sleep_delay_work);
 
