@@ -5266,7 +5266,6 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
 
 	memset(&rsp, 0, sizeof(rsp));
 
-#if 0
 	if (min < hcon->le_conn_min_interval ||
 	    max > hcon->le_conn_max_interval) {
 		BT_DBG("requested connection interval exceeds current bounds.");
@@ -5274,8 +5273,7 @@ static inline int l2cap_conn_param_update_req(struct l2cap_conn *conn,
 	} else {
 		err = hci_check_conn_params(min, max, latency, to_multiplier);
 	}
-#endif
-	err = hci_check_conn_params(min, max, latency, to_multiplier);
+
 	if (err)
 		rsp.result = cpu_to_le16(L2CAP_CONN_PARAM_REJECTED);
 	else
